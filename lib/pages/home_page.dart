@@ -11,8 +11,8 @@ class HomePage extends StatefulWidget {
 HttpLink link = HttpLink("https://countries.trevorblades.com/graphql");
 
 String countryDataGQL = """
-query Query{
-    country(code: "BD"){
+query Query (\$country: ID!){
+    country(code: \$country){
         name
         phone
         capital
@@ -48,6 +48,8 @@ class _HomePageState extends State<HomePage> {
     ),
   );
 
+  bool showDetails = false;
+
   @override
   Widget build(BuildContext context) {
     return GraphQLProvider(
@@ -65,7 +67,9 @@ class _HomePageState extends State<HomePage> {
                 child: TextFormField(
                   controller: countriesController,
                   onEditingComplete: () {
-                    print('compelte ${countriesController.text}');
+                    setState(() {
+                      showDetails = true;
+                    });
                   },
                   decoration: InputDecoration(
                     labelText: "Enter your country (eg: BD)",
@@ -75,127 +79,144 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              Query(
-                options: QueryOptions(
-                  fetchPolicy: FetchPolicy.noCache,
-                  document: gql(countryDataGQL),
-                ),
-                builder: ((result, {fetchMore, refetch}) {
-                  if (result.hasException) {
-                    print(result.exception.toString());
-                    return Text('Error');
-                  }
-                  if (result.isLoading) {
-                    return Center(
-                      child: CircularProgressIndicator(
-                        color: Colors.green,
-                        strokeWidth: 4,
+              showDetails
+                  ? Query(
+                      options: QueryOptions(
+                        fetchPolicy: FetchPolicy.noCache,
+                        document: gql(countryDataGQL),
+                        variables: {
+                          'country':
+                              '${countriesController.text.toUpperCase().toString()}'
+                        },
                       ),
-                    );
-                  }
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text('Name: '),
-                            Text(
-                              result.data?['country']?['name'].toString() ??
-                                  "NULL",
+                      builder: ((result, {fetchMore, refetch}) {
+                        if (result.hasException) {
+                          print(result.exception.toString());
+                          return Text('Error');
+                        }
+                        if (result.isLoading) {
+                          return Center(
+                            child: CircularProgressIndicator(
+                              color: Colors.green,
+                              strokeWidth: 4,
                             ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Text('Phone: '),
-                            Text(
-                              result.data?['country']?['phone'].toString() ??
-                                  "NULL",
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Text('Capital: '),
-                            Text(
-                              result.data?['country']?['capital'].toString() ??
-                                  "NULL",
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Text('Code: '),
-                            Text(
-                              result.data?['country']?['code'].toString() ??
-                                  "NULL",
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Text('Currency: '),
-                            Text(
-                              result.data?['country']?['currency'].toString() ??
-                                  "NULL",
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Text('Emoji: '),
-                            Text(
-                              result.data?['country']?['emoji'].toString() ??
-                                  "NULL",
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Text('EmojiU: '),
-                            Text(
-                              result.data?['country']?['emojiu'].toString() ??
-                                  "NULL",
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Text('Language Code: '),
-                            Text(
-                              result.data?['country']?['languages']?[0]?['code']
-                                      .toString() ??
-                                  "NULL",
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Text('Language Native: '),
-                            Text(
-                              result.data?['country']?['languages']?[0]
-                                          ?['native']
-                                      .toString() ??
-                                  "NULL",
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Text('Native: '),
-                            Text(
-                              result.data?['country']?['native'].toString() ??
-                                  "NULL",
-                            ),
-                          ],
-                        ),
-                      ],
+                          );
+                        }
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text('Name: '),
+                                  Text(
+                                    result.data?['country']?['name']
+                                            .toString() ??
+                                        "NULL",
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Text('Phone: '),
+                                  Text(
+                                    result.data?['country']?['phone']
+                                            .toString() ??
+                                        "NULL",
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Text('Capital: '),
+                                  Text(
+                                    result.data?['country']?['capital']
+                                            .toString() ??
+                                        "NULL",
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Text('Code: '),
+                                  Text(
+                                    result.data?['country']?['code']
+                                            .toString() ??
+                                        "NULL",
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Text('Currency: '),
+                                  Text(
+                                    result.data?['country']?['currency']
+                                            .toString() ??
+                                        "NULL",
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Text('Emoji: '),
+                                  Text(
+                                    result.data?['country']?['emoji']
+                                            .toString() ??
+                                        "NULL",
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Text('EmojiU: '),
+                                  Text(
+                                    result.data?['country']?['emojiu']
+                                            .toString() ??
+                                        "NULL",
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Text('Language Code: '),
+                                  Text(
+                                    result.data?['country']?['languages']?[0]
+                                                ?['code']
+                                            .toString() ??
+                                        "NULL",
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Text('Language Native: '),
+                                  Text(
+                                    result.data?['country']?['languages']?[0]
+                                                ?['native']
+                                            .toString() ??
+                                        "NULL",
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Text('Native: '),
+                                  Text(
+                                    result.data?['country']?['native']
+                                            .toString() ??
+                                        "NULL",
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
+                    )
+                  : Container(
+                      child: Text("Waiting for your input"),
                     ),
-                  );
-                }),
-              ),
             ],
           ),
         ),

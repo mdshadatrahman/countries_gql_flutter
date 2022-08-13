@@ -7,8 +7,6 @@ void main() async {
   runApp(MyApp());
 }
 
-
-
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -17,6 +15,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primaryColor: Colors.green,
         appBarTheme: AppBarTheme(color: Colors.green),
+        textTheme: TextTheme(
+          bodyText2: TextStyle(fontSize: 24),
+        ),
       ),
       home: HomePage(),
     );
